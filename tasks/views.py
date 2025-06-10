@@ -26,7 +26,7 @@ try:
         
         if not GEMINI_API_KEY:
             # Hardcode it as a last resort - not recommended for production
-            GEMINI_API_KEY = 'AIzaSyCUQC-HOsVI2UQYfmBzBMwtD_vIUGiAcZU'
+            GEMINI_API_KEY = 'AIzaSyCUQC....'
             
     # Configure Gemini API with the API key
     genai.configure(api_key=GEMINI_API_KEY)
