@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Görev Analizi - SmartDay</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #f8f9fa; }
+        .analysis-card { margin-top: 20px; border: none; border-radius: 10px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); }
+        .analysis-card .card-body { padding: 20px; }
+        .analysis-section { margin-bottom: 20px; }
+        .analysis-section h4 { color: #007bff; margin-bottom: 10px; }
+        .analysis-section ul { list-style-type: none; padding-left: 0; }
+        .analysis-section ul li { margin-bottom: 10px; padding-left: 20px; position: relative; }
+        .analysis-section ul li::before {
+            content: "•";
+            color: #007bff;
+            font-size: 1.5rem;
+            position: absolute;
+            left: 0;
+            top: -5px;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/">SmartDay</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">Ana Sayfa</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/profile/">Profil</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card analysis-card">
+                    <div class="card-body">
+                        <h2 class="card-title text-center mb-4">Görev Analizi</h2>
+                        <div class="analysis-section">
+                            <h4>Görev: {{ tasks.0.title }}</h4>
+                            <ul>
+                                {% for line in analysis.splitlines %}
+                                    {% if line.strip %}
+                                        <li>{{ line.strip }}</li>
+                                    {% endif %}
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        <div class="text-center mt-4">
+                            <a href="/" class="btn btn-primary">Ana Sayfaya Dön</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profil - SmartDay</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #f3e7e9 0%, #e3eeff 100%);
+        }
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+    </style>
+</head>
+<body class="gradient-bg font-sans min-h-screen">    <!-- Navbar -->
+    <nav class="bg-white bg-opacity-80 backdrop-blur-md shadow-sm sticky top-0 z-50">
+        <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <a href="/" class="text-2xl font-bold text-blue-800">SmartDay</a>
+            <div class="hidden md:flex space-x-6">
+                <a href="/" class="text-blue-800 hover:text-blue-600 transition-colors">
+                    <i class="fas fa-home mr-2"></i>Ana Sayfa
+                </a>
+                <a href="/calendar/" class="text-blue-800 hover:text-blue-600 transition-colors">
+                    <i class="fas fa-calendar mr-2"></i>Takvim
+                </a>
+                <a href="/performance/" class="text-blue-800 hover:text-blue-600 transition-colors">
+                    <i class="fas fa-chart-line mr-2"></i>Performans
+                </a>
+                <a href="/ai-assistant/" class="text-blue-800 hover:text-blue-600 transition-colors">
+                    <i class="fas fa-robot mr-2"></i>AI Asistan
+                </a>
+                <a href="/profile/" class="text-blue-800 hover:text-blue-600 font-semibold transition-colors">
+                    <i class="fas fa-user mr-2"></i>Profil
+                </a>
+                <a href="/logout/" class="text-red-600 hover:text-red-800 transition-colors">
+                    <i class="fas fa-sign-out-alt mr-2"></i>Çıkış
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mx-auto px-6 py-8">
+        <!-- Profil Header -->
+        <div class="bg-white bg-opacity-90 backdrop-blur-md rounded-2xl shadow-lg p-8 mb-8 card-hover">
+            <div class="flex flex-col md:flex-row items-center md:items-start space-y-4 md:space-y-0 md:space-x-6">
+                <div class="w-24 h-24 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white text-3xl font-bold">
+                    {{ user.username.0|upper }}
+                </div>
+                <div class="text-center md:text-left flex-1">
+                    <h1 class="text-3xl font-bold text-gray-800 mb-2">{{ user.get_full_name|default:user.username }}</h1>
+                    <p class="text-gray-600 mb-4"><i class="fas fa-envelope mr-2"></i>{{ user.email|default:"Email belirtilmemiş" }}</p>
+                    <div class="flex flex-wrap justify-center md:justify-start gap-2">
+                        <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm">
+                            <i class="fas fa-calendar-check mr-1"></i>Üye: {{ user.date_joined|date:"d.m.Y" }}
+                        </span>
+                        <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm">
+                            <i class="fas fa-clock mr-1"></i>Son giriş: {{ user.last_login|date:"d.m.Y H:i"|default:"Hiç" }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Sol Kolon: İstatistikler -->
+            <div class="lg:col-span-1 space-y-6">
+                <!-- Hızlı İstatistikler -->
+                <div class="bg-white bg-opacity-90 backdrop-blur-md rounded-2xl shadow-lg p-6 card-hover">
+                    <h2 class="text-xl font-bold text-gray-800 mb-6 flex items-center">
+                        <i class="fas fa-chart-bar mr-2 text-blue-600"></i>
+                        Hızlı İstatistikler
+                    </h2>
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between p-4 bg-gradient-to-r from-blue-50 to-blue-100 rounded-lg">
+                            <div>
+                                <p class="text-blue-600 text-sm font-medium">Tamamlama Oranı</p>
+                                <p class="stat-number text-blue-700">{{ completion_rate|default:"0"|floatformat:0 }}%</p>
+                            </div>
+                            <i class="fas fa-check-circle text-blue-500 text-2xl"></i>
+                        </div>
+                        
+                        <div class="flex items-center justify-between p-4 bg-gradient-to-r from-green-50 to-green-100 rounded-lg">
+                            <div>
+                                <p class="text-green-600 text-sm font-medium">Ortalama Süre</p>
+                                <p class="stat-number text-green-700">{{ avg_completion_time|default:"0"|floatformat:1 }}</p>
+                                <p class="text-green-600 text-xs">gün</p>
+                            </div>
+                            <i class="fas fa-stopwatch text-green-500 text-2xl"></i>
+                        </div>
+                        
+                        <div class="flex items-center justify-between p-4 bg-gradient-to-r from-purple-50 to-purple-100 rounded-lg">
+                            <div>
+                                <p class="text-purple-600 text-sm font-medium">Bu Hafta</p>
+                                <p class="stat-number text-purple-700">{{ weekly_tasks|default:"0" }}</p>
+                                <p class="text-purple-600 text-xs">görev</p>
+                            </div>
+                            <i class="fas fa-calendar-week text-purple-500 text-2xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tercihler Özeti -->
+                <div class="bg-white bg-opacity-90 backdrop-blur-md rounded-2xl shadow-lg p-6 card-hover">
+                    <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center">
+                        <i class="fas fa-cog mr-2 text-gray-600"></i>
+                        Mevcut Tercihler
+                    </h3>
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-center py-2 border-b border-gray-100">
+                            <span class="text-gray-600"><i class="fas fa-briefcase mr-2"></i>Çalışma Saati</span>
+                            <span class="font-semibold text-gray-800">{{ profile.work_hours|default:"8" }} saat</span>
+                        </div>
+                        <div class="flex justify-between items-center py-2 border-b border-gray-100">
+                            <span class="text-gray-600"><i class="fas fa-bed mr-2"></i>Uyku Saati</span>
+                            <span class="font-semibold text-gray-800">{{ profile.sleep_hours|default:"8" }} saat</span>
+                        </div>
+                        <div class="flex justify-between items-center py-2">
+                            <span class="text-gray-600"><i class="fas fa-clock mr-2"></i>Tercih Zamanı</span>
+                            <span class="font-semibold text-gray-800">{{ profile.preferred_task_time|default:"Sabah" }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Orta ve Sağ Kolon: Ayarlar ve Form -->
+            <div class="lg:col-span-2 space-y-6">
+                <!-- Profil Ayarları -->
+                <div class="bg-white bg-opacity-90 backdrop-blur-md rounded-2xl shadow-lg p-6 card-hover">
+                    <h2 class="text-xl font-bold text-gray-800 mb-6 flex items-center">
+                        <i class="fas fa-user-cog mr-2 text-blue-600"></i>
+                        Profil Ayarları
+                    </h2>
+                    
+                    <form method="post" class="space-y-6">
+                        {% csrf_token %}
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <!-- Çalışma Saati -->
+                            <div class="relative">
+                                <label class="block text-gray-700 text-sm font-bold mb-2" for="work_hours">
+                                    <i class="fas fa-briefcase mr-2 text-blue-500"></i>Günlük Çalışma Saati
+                                </label>
+                                <div class="relative">
+                                    <input type="number" 
+                                           id="work_hours" 
+                                           name="work_hours" 
+                                           value="{{ profile.work_hours|default:'8' }}" 
+                                           min="1" 
+                                           max="16"
+                                           class="w-full pl-10 pr-12 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-transparent transition-all"
+                                           required>
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <i class="fas fa-clock text-gray-400"></i>
+                                    </div>
+                                    <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                        <span class="text-gray-400 text-sm">saat</span>
+                                    </div>
+                                </div>
+                                <p class="text-xs text-gray-500 mt-1">Günde çalışmayı planladığınız saat miktarı</p>
+                            </div>
+
+                            <!-- Uyku Saati -->
+                            <div class="relative">
+                                <label class="block text-gray-700 text-sm font-bold mb-2" for="sleep_hours">
+                                    <i class="fas fa-bed mr-2 text-purple-500"></i>Günlük Uyku Saati
+                                </label>
+                                <div class="relative">
+                                    <input type="number" 
+                                           id="sleep_hours" 
+                                           name="sleep_hours" 
+                                           value="{{ profile.sleep_hours|default:'8' }}" 
+                                           min="4" 
+                                           max="12"
+                                           class="w-full pl-10 pr-12 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-300 focus:border-transparent transition-all"
+                                           required>
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <i class="fas fa-moon text-gray-400"></i>
+                                    </div>
+                                    <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                        <span class="text-gray-400 text-sm">saat</span>
+                                    </div>
+                                </div>
+                                <p class="text-xs text-gray-500 mt-1">Kaliteli bir uyku için önerilen: 7-9 saat</p>
+                            </div>
+                        </div>
+
+                        <!-- Tercih Edilen Görev Zamanı -->
+                        <div class="relative">
+                            <label class="block text-gray-700 text-sm font-bold mb-2" for="preferred_task_time">
+                                <i class="fas fa-sun mr-2 text-yellow-500"></i>Tercih Edilen Görev Zamanı
+                            </label>
+                            <div class="relative">
+                                <select id="preferred_task_time" 
+                                        name="preferred_task_time" 
+                                        class="w-full pl-10 pr-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-300 focus:border-transparent transition-all appearance-none bg-white">
+                                    <option value="Sabah" {% if profile.preferred_task_time == "Sabah" %}selected{% endif %}>
+                                        🌅 Sabah (06:00 - 12:00)
+                                    </option>
+                                    <option value="Öğlen" {% if profile.preferred_task_time == "Öğlen" %}selected{% endif %}>
+                                        ☀️ Öğlen (12:00 - 18:00)
+                                    </option>
+                                    <option value="Akşam" {% if profile.preferred_task_time == "Akşam" %}selected{% endif %}>
+                                        🌙 Akşam (18:00 - 24:00)
+                                    </option>
+                                </select>
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <i class="fas fa-clock text-gray-400"></i>
+                                </div>
+                                <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                    <i class="fas fa-chevron-down text-gray-400"></i>
+                                </div>
+                            </div>
+                            <p class="text-xs text-gray-500 mt-1">En verimli olduğunuz zaman dilimi</p>
+                        </div>
+
+                        <!-- Kaydet Butonu -->
+                        <div class="flex justify-end">
+                            <button type="submit" 
+                                    class="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold py-3 px-8 rounded-lg transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                                <i class="fas fa-save mr-2"></i>
+                                Ayarları Kaydet
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Hızlı Eylemler -->
+                <div class="bg-white bg-opacity-90 backdrop-blur-md rounded-2xl shadow-lg p-6 card-hover">
+                    <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center">
+                        <i class="fas fa-bolt mr-2 text-yellow-500"></i>
+                        Hızlı Eylemler
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <a href="/performance/" 
+                           class="flex flex-col items-center p-4 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg hover:from-blue-100 hover:to-blue-200 transition-all duration-300 group">
+                            <i class="fas fa-chart-line text-blue-600 text-2xl mb-2 group-hover:scale-110 transition-transform"></i>
+                            <span class="text-blue-800 font-medium text-sm text-center">Performans Raporu</span>
+                        </a>
+                          <a href="/ai-assistant/" 
+                           class="flex flex-col items-center p-4 bg-gradient-to-br from-green-50 to-green-100 rounded-lg hover:from-green-100 hover:to-green-200 transition-all duration-300 group">
+                            <i class="fas fa-robot text-green-600 text-2xl mb-2 group-hover:scale-110 transition-transform"></i>
+                            <span class="text-green-800 font-medium text-sm text-center">AI Asistan</span>
+                        </a>
+                        
+                        <a href="/calendar/" 
+                           class="flex flex-col items-center p-4 bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg hover:from-purple-100 hover:to-purple-200 transition-all duration-300 group">
+                            <i class="fas fa-calendar text-purple-600 text-2xl mb-2 group-hover:scale-110 transition-transform"></i>
+                            <span class="text-purple-800 font-medium text-sm text-center">Takvim</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer bilgi -->
+    <div class="container mx-auto px-6 py-4">
+        <div class="text-center text-gray-600 text-sm">
+            <p>💡 <strong>İpucu:</strong> Düzenli profil ayarları güncellemek, AI önerilerinin kalitesini artırır.</p>
+        </div>
+    </div>
+</body>
+</html>

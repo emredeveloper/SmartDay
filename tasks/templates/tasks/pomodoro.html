@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pomodoro Timer - SmartDay</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ffa726 100%);
+        }
+        .timer-circle {
+            stroke-dasharray: 628;
+            stroke-dashoffset: 628;
+            transition: stroke-dashoffset 1s linear;
+        }
+    </style>
+</head>
+<body class="gradient-bg font-sans min-h-screen">
+
+    <!-- Navbar -->
+    <nav class="bg-white bg-opacity-80 backdrop-blur-md shadow-sm">
+        <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <a href="/" class="text-2xl font-bold text-red-800">SmartDay</a>
+            <div class="flex space-x-4">
+                <a href="/calendar/" class="text-red-800 hover:text-red-600">Takvim</a>
+                <a href="/" class="text-red-800 hover:text-red-600">Görevler</a>
+                <a href="/pomodoro/" class="text-red-800 hover:text-red-600 font-semibold">Pomodoro</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Pomodoro Timer -->
+    <div class="container mx-auto px-6 py-8">
+        <div class="max-w-md mx-auto bg-white bg-opacity-90 backdrop-blur-md rounded-2xl shadow-2xl p-8">
+            
+            <!-- Timer Görseli -->
+            <div class="relative mb-8">
+                <svg class="w-64 h-64 mx-auto transform -rotate-90" viewBox="0 0 200 200">
+                    <circle cx="100" cy="100" r="90" stroke="#e5e7eb" stroke-width="10" fill="none"/>
+                    <circle id="progressCircle" cx="100" cy="100" r="90" stroke="#ef4444" stroke-width="10" 
+                            fill="none" class="timer-circle"/>
+                </svg>
+                <div class="absolute inset-0 flex items-center justify-center">
+                    <div class="text-center">
+                        <div id="timeDisplay" class="text-4xl font-bold text-gray-800 mb-2">25:00</div>
+                        <div id="sessionType" class="text-lg text-gray-600">Çalışma Zamanı</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Kontrol Butonları -->
+            <div class="flex justify-center space-x-4 mb-6">
+                <button id="startBtn" class="bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-lg font-semibold">
+                    Başlat
+                </button>
+                <button id="pauseBtn" class="bg-yellow-500 hover:bg-yellow-600 text-white px-6 py-3 rounded-lg font-semibold" disabled>
+                    Duraklat
+                </button>
+                <button id="resetBtn" class="bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-lg font-semibold">
+                    Sıfırla
+                </button>
+            </div>
+
+            <!-- Ayarlar -->
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-gray-700 font-semibold mb-2">Çalışma Süresi (dakika)</label>
+                    <input id="workDuration" type="number" value="25" min="1" max="60" 
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500">
+                </div>
+                <div>
+                    <label class="block text-gray-700 font-semibold mb-2">Mola Süresi (dakika)</label>
+                    <input id="breakDuration" type="number" value="5" min="1" max="30" 
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500">
+                </div>
+            </div>
+
+            <!-- İstatistikler -->
+            <div class="mt-8 p-4 bg-gray-50 rounded-lg">
+                <h4 class="font-semibold text-gray-800 mb-2">Bugünkü İstatistikler</h4>
+                <div class="flex justify-between">
+                    <span class="text-gray-600">Tamamlanan Pomodoro:</span>
+                    <span id="completedSessions" class="font-semibold">0</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-gray-600">Toplam Odaklanma:</span>
+                    <span id="totalFocus" class="font-semibold">0 dakika</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class PomodoroTimer {
+            constructor() {
+                this.workDuration = 25 * 60; // 25 dakika
+                this.breakDuration = 5 * 60; // 5 dakika
+                this.currentTime = this.workDuration;
+                this.isRunning = false;
+                this.isWorkSession = true;
+                this.completedSessions = 0;
+                this.totalFocusTime = 0;
+                this.timer = null;
+                
+                this.initializeElements();
+                this.setupEventListeners();
+                this.updateDisplay();
+                this.loadStats();
+            }
+
+            initializeElements() {
+                this.timeDisplay = document.getElementById('timeDisplay');
+                this.sessionType = document.getElementById('sessionType');
+                this.progressCircle = document.getElementById('progressCircle');
+                this.startBtn = document.getElementById('startBtn');
+                this.pauseBtn = document.getElementById('pauseBtn');
+                this.resetBtn = document.getElementById('resetBtn');
+                this.workDurationInput = document.getElementById('workDuration');
+                this.breakDurationInput = document.getElementById('breakDuration');
+                this.completedSessionsSpan = document.getElementById('completedSessions');
+                this.totalFocusSpan = document.getElementById('totalFocus');
+            }
+
+            setupEventListeners() {
+                this.startBtn.addEventListener('click', () => this.start());
+                this.pauseBtn.addEventListener('click', () => this.pause());
+                this.resetBtn.addEventListener('click', () => this.reset());
+                
+                this.workDurationInput.addEventListener('change', () => {
+                    this.workDuration = this.workDurationInput.value * 60;
+                    if (this.isWorkSession && !this.isRunning) {
+                        this.currentTime = this.workDuration;
+                        this.updateDisplay();
+                    }
+                });
+                
+                this.breakDurationInput.addEventListener('change', () => {
+                    this.breakDuration = this.breakDurationInput.value * 60;
+                    if (!this.isWorkSession && !this.isRunning) {
+                        this.currentTime = this.breakDuration;
+                        this.updateDisplay();
+                    }
+                });
+            }
+
+            start() {
+                this.isRunning = true;
+                this.startBtn.disabled = true;
+                this.pauseBtn.disabled = false;
+                
+                this.timer = setInterval(() => {
+                    this.currentTime--;
+                    this.updateDisplay();
+                    
+                    if (this.currentTime <= 0) {
+                        this.sessionComplete();
+                    }
+                }, 1000);
+            }
+
+            pause() {
+                this.isRunning = false;
+                this.startBtn.disabled = false;
+                this.pauseBtn.disabled = true;
+                clearInterval(this.timer);
+            }
+
+            reset() {
+                this.pause();
+                this.currentTime = this.isWorkSession ? this.workDuration : this.breakDuration;
+                this.updateDisplay();
+            }
+
+            sessionComplete() {
+                this.pause();
+                
+                if (this.isWorkSession) {
+                    this.completedSessions++;
+                    this.totalFocusTime += this.workDuration / 60;
+                    this.saveStats();
+                    this.updateStats();
+                    
+                    // Bildirim
+                    if (Notification.permission === 'granted') {
+                        new Notification('Pomodoro Tamamlandı!', {
+                            body: 'Harika! Şimdi 5 dakika mola zamanı.',
+                            icon: '/static/pomodoro-icon.png'
+                        });
+                    }
+                    
+                    // Mola moduna geç
+                    this.isWorkSession = false;
+                    this.currentTime = this.breakDuration;
+                    this.sessionType.textContent = 'Mola Zamanı';
+                } else {
+                    // Çalışma moduna geç
+                    this.isWorkSession = true;
+                    this.currentTime = this.workDuration;
+                    this.sessionType.textContent = 'Çalışma Zamanı';
+                }
+                
+                this.updateDisplay();
+            }
+
+            updateDisplay() {
+                const minutes = Math.floor(this.currentTime / 60);
+                const seconds = this.currentTime % 60;
+                this.timeDisplay.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                
+                // Progress circle güncelle
+                const totalTime = this.isWorkSession ? this.workDuration : this.breakDuration;
+                const progress = (totalTime - this.currentTime) / totalTime;
+                const offset = 628 - (628 * progress);
+                this.progressCircle.style.strokeDashoffset = offset;
+            }
+
+            updateStats() {
+                this.completedSessionsSpan.textContent = this.completedSessions;
+                this.totalFocusSpan.textContent = `${this.totalFocusTime} dakika`;
+            }
+
+            saveStats() {
+                localStorage.setItem('pomodoroStats', JSON.stringify({
+                    date: new Date().toDateString(),
+                    completedSessions: this.completedSessions,
+                    totalFocusTime: this.totalFocusTime
+                }));
+            }
+
+            loadStats() {
+                const saved = localStorage.getItem('pomodoroStats');
+                if (saved) {
+                    const stats = JSON.parse(saved);
+                    const today = new Date().toDateString();
+                    
+                    if (stats.date === today) {
+                        this.completedSessions = stats.completedSessions;
+                        this.totalFocusTime = stats.totalFocusTime;
+                        this.updateStats();
+                    }
+                }
+            }
+        }
+
+        // Bildirim izni iste
+        if ('Notification' in window && Notification.permission === 'default') {
+            Notification.requestPermission();
+        }
+
+        // Timer'ı başlat
+        const pomodoroTimer = new PomodoroTimer();
+    </script>
+</body>
+</html>

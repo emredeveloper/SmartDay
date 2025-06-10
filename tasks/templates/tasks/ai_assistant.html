@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Asistan - SmartDay</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #f3e7e9 0%, #e3eeff 100%);
+        }
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body class="gradient-bg font-sans min-h-screen">
+
+    <!-- Navbar -->
+    <nav class="bg-white bg-opacity-80 backdrop-blur-md shadow-sm sticky top-0 z-50">
+        <div class="container mx-auto px-6 py-4">
+            <div class="flex justify-between items-center">
+                <a href="/" class="text-2xl font-bold text-blue-800">SmartDay</a>
+                
+                <!-- Desktop Navigation -->
+                <div class="hidden md:flex space-x-6">
+                    <a href="/" class="text-blue-800 hover:text-blue-600 transition duration-300">🏠 Ana Sayfa</a>
+                    <a href="/calendar/" class="text-blue-800 hover:text-blue-600 transition duration-300">📅 Takvim</a>
+                    <a href="/performance/" class="text-blue-800 hover:text-blue-600 transition duration-300">📈 Performans</a>
+                    <a href="/ai-assistant/" class="text-purple-600 hover:text-purple-800 font-semibold transition duration-300">🤖 AI Asistan</a>
+                    <a href="/profile/" class="text-blue-800 hover:text-blue-600 transition duration-300">👤 Profil</a>
+                    <a href="/logout/" class="text-red-600 hover:text-red-800 transition duration-300">🚪 Çıkış</a>
+                </div>
+
+                <!-- Mobile menu button -->
+                <button id="mobile-menu-btn" class="md:hidden text-blue-800">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Mobile Navigation -->
+            <div id="mobile-menu" class="hidden md:hidden mt-4 space-y-2">
+                <a href="/" class="block text-blue-800 hover:bg-blue-100 px-3 py-2 rounded transition duration-300">🏠 Ana Sayfa</a>
+                <a href="/calendar/" class="block text-blue-800 hover:bg-blue-100 px-3 py-2 rounded transition duration-300">📅 Takvim</a>
+                <a href="/performance/" class="block text-blue-800 hover:bg-blue-100 px-3 py-2 rounded transition duration-300">📈 Performans</a>
+                <a href="/ai-assistant/" class="block text-purple-600 hover:bg-purple-100 px-3 py-2 rounded font-semibold transition duration-300">🤖 AI Asistan</a>
+                <a href="/profile/" class="block text-blue-800 hover:bg-blue-100 px-3 py-2 rounded transition duration-300">👤 Profil</a>
+                <a href="/logout/" class="block text-red-600 hover:bg-red-100 px-3 py-2 rounded transition duration-300">🚪 Çıkış</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mx-auto px-6 py-8">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-gray-800 mb-4">🤖 AI Asistan</h1>
+            <p class="text-xl text-gray-600">Yapay zeka destekli akıllı görev yönetimi</p>
+        </div>
+
+        <!-- AI Özellikler Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-8">
+            
+            <!-- Akıllı Öneriler -->
+            <div class="bg-white bg-opacity-90 backdrop-blur-md rounded-2xl shadow-lg p-8 card-hover">
+                <div class="text-center mb-6">
+                    <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-lightbulb text-blue-600 text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-2">💡 Akıllı Öneriler</h3>
+                    <p class="text-gray-600 text-sm">Size özel görev önerileri ve optimizasyon tavsiyeleri</p>
+                </div>
+                <button onclick="getAISuggestions()" class="w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white py-3 rounded-lg font-semibold hover:from-blue-600 hover:to-blue-700 transition duration-300">
+                    Öneriler Al
+                </button>
+            </div>
+
+            <!-- Performans Analizi -->
+            <div class="bg-white bg-opacity-90 backdrop-blur-md rounded-2xl shadow-lg p-8 card-hover">
+                <div class="text-center mb-6">
+                    <div class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-chart-pie text-purple-600 text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-2">📊 Performans Analizi</h3>
+                    <p class="text-gray-600 text-sm">Görev geçmişinizi analiz ederek gelişim önerileri</p>
+                </div>
+                <button onclick="getAIAnalysis()" class="w-full bg-gradient-to-r from-purple-500 to-purple-600 text-white py-3 rounded-lg font-semibold hover:from-purple-600 hover:to-purple-700 transition duration-300">
+                    Analiz Et
+                </button>
+            </div>
+
+            <!-- Akıllı Önceliklendirme -->
+            <div class="bg-white bg-opacity-90 backdrop-blur-md rounded-2xl shadow-lg p-8 card-hover">
+                <div class="text-center mb-6">
+                    <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-sort-amount-down text-green-600 text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-2">🎯 Akıllı Önceliklendirme</h3>
+                    <p class="text-gray-600 text-sm">Görevlerinizi AI ile otomatik önceliklendirme</p>
+                </div>
+                <button onclick="getAIPriority()" class="w-full bg-gradient-to-r from-green-500 to-green-600 text-white py-3 rounded-lg font-semibold hover:from-green-600 hover:to-green-700 transition duration-300">
+                    Önceliklendir
+                </button>
+            </div>
+
+        </div>
+
+        <!-- AI Yanıt Alanı -->
+        <div id="aiResponse" class="bg-white bg-opacity-90 backdrop-blur-md rounded-2xl shadow-lg p-8 min-h-[200px] hidden">
+            <div class="flex justify-between items-center mb-6">
+                <h4 class="text-2xl font-bold text-gray-800 flex items-center">
+                    <i class="fas fa-robot text-purple-600 mr-3"></i>
+                    AI Yanıtı
+                </h4>
+                <button onclick="closeAIResponse()" class="text-gray-500 hover:text-gray-700 transition duration-300">
+                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                    </svg>
+                </button>
+            </div>
+            
+            <div id="aiContent" class="text-gray-700 whitespace-pre-wrap text-lg leading-relaxed"></div>
+            
+            <div id="aiLoading" class="text-center hidden">
+                <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
+                <p class="ml-2 text-purple-600 text-lg mt-4">AI düşünüyor...</p>
+            </div>
+        </div>
+
+        <!-- Bilgi Kartları -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
+            <div class="bg-gradient-to-r from-blue-50 to-purple-50 rounded-2xl p-6">
+                <h4 class="text-lg font-bold text-gray-800 mb-3 flex items-center">
+                    <i class="fas fa-info-circle text-blue-600 mr-2"></i>
+                    AI Asistan Nasıl Çalışır?
+                </h4>
+                <ul class="text-gray-600 space-y-2">
+                    <li>• Görev geçmişinizi analiz eder</li>
+                    <li>• Kişiselleştirilmiş öneriler sunar</li>
+                    <li>• Performansınızı takip eder</li>
+                    <li>• Optimize edilmiş çalışma planları hazırlar</li>
+                </ul>
+            </div>
+            
+            <div class="bg-gradient-to-r from-green-50 to-blue-50 rounded-2xl p-6">
+                <h4 class="text-lg font-bold text-gray-800 mb-3 flex items-center">
+                    <i class="fas fa-tips text-green-600 mr-2"></i>
+                    Daha İyi Sonuçlar İçin
+                </h4>
+                <ul class="text-gray-600 space-y-2">
+                    <li>• Görevlerinizi düzenli olarak güncelleyin</li>
+                    <li>• Detaylı açıklamalar ekleyin</li>
+                    <li>• Tamamlanan görevleri işaretleyin</li>
+                    <li>• AI önerilerini düzenli takip edin</li>
+                </ul>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+        // CSRF Token alma
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        // AI Yanıt Gösterme
+        function showAIResponse(content) {
+            const responseDiv = document.getElementById('aiResponse');
+            const contentDiv = document.getElementById('aiContent');
+            const loadingDiv = document.getElementById('aiLoading');
+            
+            if (loadingDiv) loadingDiv.classList.add('hidden');
+            if (contentDiv) contentDiv.textContent = content;
+            if (responseDiv) {
+                responseDiv.classList.remove('hidden');
+                responseDiv.scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+
+        // AI Yanıt Kapatma
+        function closeAIResponse() {
+            const responseDiv = document.getElementById('aiResponse');
+            if (responseDiv) {
+                responseDiv.classList.add('hidden');
+            }
+        }
+
+        // AI Loading Gösterme
+        function showAILoading() {
+            const responseDiv = document.getElementById('aiResponse');
+            const contentDiv = document.getElementById('aiContent');
+            const loadingDiv = document.getElementById('aiLoading');
+            
+            if (contentDiv) contentDiv.textContent = '';
+            if (loadingDiv) loadingDiv.classList.remove('hidden');
+            if (responseDiv) {
+                responseDiv.classList.remove('hidden');
+                responseDiv.scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+
+        // AI Önerileri
+        function getAISuggestions() {
+            console.log('AI Önerileri işleniyor...');
+            showAILoading();
+            
+            // Simulate API call with placeholder response
+            setTimeout(() => {
+                const suggestions = `🤖 **AI Önerileri**
+
+📅 **Günlük Planlama Önerileri:**
+• Sabah en önemli görevinizi tamamlayın
+• Pomodoro tekniği kullanarak 25 dakika odaklanın
+• Öğlen arası 15 dakika yürüyüş yapın
+
+📊 **Verimlilik İpuçları:**
+• Benzer görevleri gruplayın
+• Her görev için gerçekçi süre tahminleri yapın
+• Günlük hedeflerinizi küçük parçalara bölün
+
+✨ **Önerilen Yeni Görevler:**
+• "Günlük planlama" - Her gün 10 dakika
+• "Email kontrolü" - Günde 2-3 kez
+• "Proje ilerlemesi" - Haftalık değerlendirme
+
+💡 Bu öneriler görev geçmişiniz ve performansınız analiz edilerek oluşturulmuştur.`;
+                
+                showAIResponse(suggestions);
+            }, 1500);
+        }
+
+        // AI Performans Analizi
+        function getAIAnalysis() {
+            console.log('AI Analizi çağrılıyor...');
+            showAILoading();
+            
+            fetch('/ai/analysis/', {
+                method: 'GET',
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken'),
+                    'Content-Type': 'application/json',
+                }
+            })
+                .then(response => {
+                    console.log('Analysis response status:', response.status);
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('AI Analizi:', data);
+                    if (data.analysis) {
+                        showAIResponse(data.analysis);
+                    } else {
+                        showAIResponse('Analiz yapılamadı. Birkaç görev ekledikten sonra tekrar deneyin.');
+                    }
+                })
+                .catch(error => {
+                    console.error('AI Analizi hatası:', error);
+                    showAIResponse('⚠️ Analiz servisi şu anda kullanılamıyor. Lütfen daha sonra tekrar deneyin.\n\nHata: ' + error.message);
+                });
+        }
+
+        // AI Öncelik Belirleme
+        function getAIPriority() {
+            console.log('AI Öncelik çağrılıyor...');
+            showAILoading();
+            
+            fetch('/ai/prioritize/', {
+                method: 'GET',
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken'),
+                    'Content-Type': 'application/json',
+                }
+            })
+                .then(response => {
+                    console.log('Priority response status:', response.status);
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('AI Öncelik:', data);
+                    if (data.priority_suggestion) {
+                        showAIResponse(data.priority_suggestion);
+                    } else {
+                        showAIResponse('Öncelik analizi yapılamadı. Birkaç görev ekledikten sonra tekrar deneyin.');
+                    }
+                })
+                .catch(error => {
+                    console.error('AI Öncelik hatası:', error);
+                    showAIResponse('⚠️ Öncelik servisi şu anda kullanılamıyor. Lütfen daha sonra tekrar deneyin.\n\nHata: ' + error.message);
+                });
+        }
+
+        // Mobile menu toggle
+        document.addEventListener('DOMContentLoaded', function() {
+            const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+            const mobileMenu = document.getElementById('mobile-menu');
+            
+            if (mobileMenuBtn && mobileMenu) {
+                mobileMenuBtn.addEventListener('click', function() {
+                    mobileMenu.classList.toggle('hidden');
+                });
+            }
+        });
+    </script>
+
+</body>
+</html>

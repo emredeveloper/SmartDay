@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartDay - Modern UI</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        /* Özel stiller */
+        .gradient-bg {
+            background: linear-gradient(135deg, #f3e7e9 0%, #e3eeff 100%);
+        }
+        .completed-task {
+            opacity: 0.6;
+        }
+        .completed-task h3 {
+            text-decoration: line-through;
+        }
+    </style>
+</head>
+<body class="gradient-bg font-sans">
+    <!-- Navbar -->
+    <nav class="bg-white bg-opacity-80 backdrop-blur-md shadow-sm sticky top-0 z-50">
+        <div class="container mx-auto px-6 py-4">
+            <div class="flex justify-between items-center">
+                <a href="/" class="text-2xl font-bold text-blue-800">SmartDay</a>
+                
+                {% if user.is_authenticated %}
+                <!-- Desktop Navigation -->
+                <div class="hidden md:flex space-x-6">
+                    <a href="/" class="text-blue-800 hover:text-blue-600 font-semibold border-b-2 border-blue-600">Görevler</a>
+                    <a href="/calendar/" class="text-blue-800 hover:text-blue-600 transition-colors">Takvim</a>
+                    <a href="/performance/" class="text-blue-800 hover:text-blue-600 transition-colors">Performans</a>
+                    <a href="/ai-assistant/" class="text-purple-600 hover:text-purple-800 transition-colors">🤖 AI Asistan</a>
+                </div>
+                
+                <!-- User Menu -->
+                <div class="hidden md:flex items-center space-x-4">
+                    <span class="text-gray-700">Merhaba, {{ user.username }}!</span>
+                    <a href="/profile/" class="text-blue-800 hover:text-blue-600 transition-colors">Profil</a>
+                    <a href="/logout/" class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-colors">Çıkış</a>
+                </div>
+                
+                <!-- Mobile Menu Button -->
+                <div class="md:hidden">
+                    <button id="mobile-menu-btn" class="text-blue-800 hover:text-blue-600">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                        </svg>
+                    </button>
+                </div>
+                {% else %}
+                <div class="flex space-x-4">
+                    <a href="/login/" class="text-blue-800 hover:text-blue-600">Giriş Yap</a>
+                    <a href="/register/" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">Kayıt Ol</a>
+                </div>
+                {% endif %}
+            </div>
+            
+            {% if user.is_authenticated %}
+            <!-- Mobile Navigation Menu -->
+            <div id="mobile-menu" class="hidden md:hidden mt-4 pb-4">
+                <div class="flex flex-col space-y-2">
+                    <a href="/" class="text-blue-800 hover:text-blue-600 py-2 px-4 rounded-lg">Görevler</a>
+                    <a href="/calendar/" class="text-blue-800 hover:text-blue-600 py-2 px-4 rounded-lg">Takvim</a>
+                    <a href="/performance/" class="text-blue-800 hover:text-blue-600 py-2 px-4 rounded-lg">Performans</a>
+                    <a href="/ai-assistant/" class="text-purple-600 hover:text-purple-700 py-2 px-4 rounded-lg">🤖 AI Asistan</a>
+                    <hr class="my-2">
+                    <a href="/profile/" class="text-blue-800 hover:text-blue-600 py-2 px-4 rounded-lg">Profil</a>
+                    <a href="/logout/" class="text-red-600 hover:text-red-700 py-2 px-4 rounded-lg">Çıkış Yap</a>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </nav>
+
+    <!-- Hata Mesajları -->
+    {% if messages %}
+    <div class="container mx-auto px-4 mt-4">
+        {% for message in messages %}
+        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg mb-4">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Hızlı Erişim Butonları -->
+    {% if user.is_authenticated %}
+    <div class="container mx-auto px-4 mt-6">
+        <div class="flex flex-wrap justify-center gap-4 mb-6">
+            <a href="/calendar/" class="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors flex items-center">
+                <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"/>
+                </svg>
+                Takvim
+            </a>
+            <a href="/performance/" class="bg-yellow-600 text-white px-6 py-3 rounded-lg hover:bg-yellow-700 transition-colors flex items-center">
+                <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z"/>
+                </svg>
+                Performans
+            </a>
+            <a href="/ai-assistant/" class="bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700 transition-colors flex items-center">
+                <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"/>
+                </svg>
+                🤖 AI Asistan
+            </a>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Yeni Görev Ekleme Formu -->
+    <div class="container mx-auto px-4 mt-8">
+        <div class="bg-white bg-opacity-90 backdrop-blur-md rounded-2xl shadow-lg p-6">
+            <h2 class="text-2xl font-bold mb-6 text-center text-gray-800">Yeni Görev Ekle</h2>
+            <form method="post">
+                {% csrf_token %}
+                <div class="mb-4">
+                    <label class="block text-gray-800 text-sm font-bold mb-2" for="title">Görev Başlığı</label>
+                    <input type="text" id="title" name="title" class="w-full px-3 py-2 border border-blue-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300" placeholder="Görev Başlığı" required>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-800 text-sm font-bold mb-2" for="description">Açıklama</label>
+                    <textarea id="description" name="description" class="w-full px-3 py-2 border border-blue-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300" rows="3" placeholder="Açıklama"></textarea>
+                    <!-- AI Zaman Tahmini Butonu -->
+                    <button type="button" id="estimateTimeBtn" class="mt-2 bg-purple-500 text-white px-4 py-2 rounded-lg hover:bg-purple-600 transition duration-300 text-sm">
+                        🤖 AI Zaman Tahmini
+                    </button>
+                    <div id="timeEstimate" class="mt-2 text-sm text-purple-600 hidden"></div>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-800 text-sm font-bold mb-2" for="due_date">Bitiş Tarihi</label>
+                    <input type="date" id="due_date" name="due_date" class="w-full px-3 py-2 border border-blue-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300" required>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-800 text-sm font-bold mb-2" for="priority">Öncelik</label>
+                    <select id="priority" name="priority" class="w-full px-3 py-2 border border-blue-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300" required>
+                        <option value="1">Yüksek Öncelik</option>
+                        <option value="2" selected>Orta Öncelik</option>
+                        <option value="3">Düşük Öncelik</option>
+                    </select>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-800 text-sm font-bold mb-2" for="tags">Etiketler</label>
+                    <select id="tags" name="tags" class="w-full px-3 py-2 border border-blue-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300" multiple>
+                        {% for tag in tags %}
+                            <option value="{{ tag.id }}">{{ tag.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <button type="submit" class="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    Görev Ekle
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Görevler Listesi -->
+    <div class="container mx-auto px-4 mt-8">
+        <!-- Kanban Panosu -->
+        <h2 class="text-2xl font-bold mb-6 text-center text-gray-800">Kanban Panosu</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <!-- Yapılacaklar -->
+            <div class="kanban-col bg-blue-50 p-4 rounded-xl">
+                <div class="kanban-header text-blue-700">Yapılacaklar</div>
+                {% for task in todo %}
+                <div class="kanban-card border-l-4 border-blue-400">
+                    <div class="font-semibold">{{ task.title }}</div>
+                    <div class="text-sm text-gray-600">{{ task.description }}</div>
+                    <div class="text-xs text-gray-400 mt-2">Bitiş: {{ task.due_date|date:"d.m.Y" }}</div>
+                    <form method="post" action="{% url 'complete_task' task.id %}" class="mt-2">
+                        {% csrf_token %}
+                        <button type="submit" class="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600 text-xs">Tamamlandı</button>
+                    </form>
+                </div>
+                {% empty %}
+                <div class="text-gray-400">Görev yok.</div>
+                {% endfor %}
+            </div>
+            <!-- Devam Edenler -->
+            <div class="kanban-col bg-yellow-50 p-4 rounded-xl">
+                <div class="kanban-header text-yellow-700">Devam Edenler</div>
+                {% for task in in_progress %}
+                <div class="kanban-card border-l-4 border-yellow-400">
+                    <div class="font-semibold">{{ task.title }}</div>
+                    <div class="text-sm text-gray-600">{{ task.description }}</div>
+                    <div class="text-xs text-gray-400 mt-2">Bitiş: {{ task.due_date|date:"d.m.Y" }}</div>
+                    <form method="post" action="{% url 'complete_task' task.id %}" class="mt-2">
+                        {% csrf_token %}
+                        <button type="submit" class="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600 text-xs">Tamamlandı</button>
+                    </form>
+                </div>
+                {% empty %}
+                <div class="text-gray-400">Görev yok.</div>
+                {% endfor %}
+            </div>
+            <!-- Tamamlananlar -->
+            <div class="kanban-col bg-green-50 p-4 rounded-xl">
+                <div class="kanban-header text-green-700">Tamamlananlar</div>
+                {% for task in done %}
+                <div class="kanban-card border-l-4 border-green-400 opacity-70">
+                    <div class="font-semibold line-through">{{ task.title }}</div>
+                    <div class="text-sm text-gray-600">{{ task.description }}</div>
+                    <div class="text-xs text-gray-400 mt-2">Bitiş: {{ task.due_date|date:"d.m.Y" }}</div>
+                </div>
+                {% empty %}
+                <div class="text-gray-400">Görev yok.</div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- AI Özellikler Bölümü -->
+    <div class="container mx-auto px-4 mt-8">
+        <div class="bg-white bg-opacity-90 backdrop-blur-md rounded-2xl shadow-lg p-6">
+            <h2 class="text-2xl font-bold mb-6 text-center text-gray-800">🤖 AI Asistan</h2>
+            
+            <!-- AI Butonları Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                <!-- Görev Önerileri -->
+                <div class="bg-gradient-to-r from-blue-400 to-blue-600 rounded-xl p-4 text-white">
+                    <h3 class="font-bold text-lg mb-2">💡 Akıllı Öneriler</h3>
+                    <p class="text-sm mb-4">Size özel görev önerileri alın</p>
+                    <button onclick="getAISuggestions()" class="w-full bg-white text-blue-600 py-2 rounded-lg font-semibold hover:bg-gray-100 transition duration-300">
+                        Öneri Al
+                    </button>
+                </div>
+
+                <!-- Görev Analizi -->
+                <div class="bg-gradient-to-r from-purple-400 to-purple-600 rounded-xl p-4 text-white">
+                    <h3 class="font-bold text-lg mb-2">📊 Performans Analizi</h3>
+                    <p class="text-sm mb-4">Görev geçmişinizi analiz edin</p>
+                    <button onclick="getAIAnalysis()" class="w-full bg-white text-purple-600 py-2 rounded-lg font-semibold hover:bg-gray-100 transition duration-300">
+                        Analiz Et
+                    </button>
+                </div>
+
+                <!-- Öncelik Belirleme -->
+                <div class="bg-gradient-to-r from-green-400 to-green-600 rounded-xl p-4 text-white">
+                    <h3 class="font-bold text-lg mb-2">🎯 Akıllı Önceliklendirme</h3>
+                    <p class="text-sm mb-4">Görevlerinizi AI ile önceliklendirin</p>
+                    <button onclick="getAIPriority()" class="w-full bg-white text-green-600 py-2 rounded-lg font-semibold hover:bg-gray-100 transition duration-300">
+                        Önceliklendir
+                    </button>
+                </div>
+            </div>
+
+            <!-- AI Yanıt Alanı -->
+            <div id="aiResponse" class="bg-gray-50 rounded-xl p-4 min-h-[100px] hidden">
+                <div class="flex justify-between items-center mb-3">
+                    <h4 class="font-bold text-gray-800">AI Yanıtı:</h4>
+                    <button onclick="closeAIResponse()" class="text-gray-500 hover:text-gray-700">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                        </svg>
+                    </button>
+                </div>
+                <div id="aiContent" class="text-gray-700 whitespace-pre-wrap"></div>
+                <div id="aiLoading" class="text-center hidden">
+                    <div class="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
+                    <span class="ml-2 text-blue-600">AI düşünüyor...</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Analiz Modal -->
+    <div id="analysisModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center">
+        <div class="bg-white bg-opacity-90 backdrop-blur-md rounded-2xl shadow-lg p-6 max-w-md w-full">
+            <h4 class="text-xl font-bold mb-4 text-gray-800">Görev Analizi</h4>
+            <div id="analysisContent" class="mb-4 text-blue-700"></div>
+            <button onclick="closeAnalysis()" class="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                Kapat
+            </button>
+        </div>
+    </div>
+
+    <!-- Özellikler Bölümü -->
+    {% if user.is_authenticated %}
+    <div class="container mx-auto px-4 mt-8 mb-8">
+        <div class="bg-white bg-opacity-90 backdrop-blur-md rounded-2xl shadow-lg p-6">
+            <h2 class="text-2xl font-bold mb-6 text-center text-gray-800">SmartDay Özellikleri</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Takvim -->
+                <a href="/calendar/" class="block bg-gradient-to-r from-blue-500 to-purple-600 text-white p-6 rounded-xl hover:shadow-lg transition-all">
+                    <div class="flex items-center mb-3">
+                        <svg class="w-8 h-8 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"/>
+                        </svg>
+                        <h3 class="text-xl font-bold">Takvim</h3>
+                    </div>
+                    <p class="text-blue-100">Görevlerinizi takvim görünümünde planlayın ve takip edin.</p>
+                </a>
+
+                <!-- Görev Yönetimi -->
+                <a href="/" class="block bg-gradient-to-r from-green-500 to-teal-600 text-white p-6 rounded-xl hover:shadow-lg transition-all">
+                    <div class="flex items-center mb-3">
+                        <svg class="w-8 h-8 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z" clip-rule="evenodd"/>
+                        </svg>
+                        <h3 class="text-xl font-bold">Görev Yönetimi</h3>
+                    </div>
+                    <p class="text-green-100">Görevlerinizi kolaylıkla ekleyin, düzenleyin ve takip edin.</p>
+                </a>
+
+                <!-- Performans -->
+                <a href="/performance/" class="block bg-gradient-to-r from-yellow-500 to-orange-600 text-white p-6 rounded-xl hover:shadow-lg transition-all">
+                    <div class="flex items-center mb-3">
+                        <svg class="w-8 h-8 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z"/>
+                        </svg>
+                        <h3 class="text-xl font-bold">Performans</h3>
+                    </div>
+                    <p class="text-yellow-100">Detaylı performans raporlarınızı inceleyin ve ilerlemenizi takip edin.</p>
+                </a>
+
+                <!-- AI Asistan -->
+                <a href="/ai-assistant/" class="block bg-gradient-to-r from-purple-500 to-indigo-600 text-white p-6 rounded-xl hover:shadow-lg transition-all">
+                    <div class="flex items-center mb-3">
+                        <svg class="w-8 h-8 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"/>
+                        </svg>
+                        <h3 class="text-xl font-bold">AI Asistan</h3>
+                    </div>
+                    <p class="text-purple-100">Yapay zeka destekli akıllı asistan ile görevlerinizi optimize edin.</p>
+                </a>
+
+                <!-- Profil -->
+                <a href="/profile/" class="block bg-gradient-to-r from-gray-500 to-gray-700 text-white p-6 rounded-xl hover:shadow-lg transition-all">
+                    <div class="flex items-center mb-3">
+                        <svg class="w-8 h-8 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/>
+                        </svg>
+                        <h3 class="text-xl font-bold">Profil</h3>
+                    </div>
+                    <p class="text-gray-100">Kişisel bilgilerinizi düzenleyin ve hesap ayarlarınızı yönetin.</p>
+                </a>
+
+                <!-- Pomodoro -->
+                <a href="/pomodoro/" class="block bg-gradient-to-r from-red-500 to-pink-600 text-white p-6 rounded-xl hover:shadow-lg transition-all">
+                    <div class="flex items-center mb-3">
+                        <svg class="w-8 h-8 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/>
+                        </svg>
+                        <h3 class="text-xl font-bold">Pomodoro</h3>
+                    </div>
+                    <p class="text-red-100">Pomodoro tekniği ile odaklanın ve verimli çalışın.</p>
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- JavaScript -->
+    <script>
+        // CSRF Token alma
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        // AI Yanıt Gösterme
+        function showAIResponse(content) {
+            const responseDiv = document.getElementById('aiResponse');
+            const contentDiv = document.getElementById('aiContent');
+            const loadingDiv = document.getElementById('aiLoading');
+            
+            if (loadingDiv) loadingDiv.classList.add('hidden');
+            if (contentDiv) contentDiv.textContent = content;
+            if (responseDiv) {
+                responseDiv.classList.remove('hidden');
+                responseDiv.scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+
+        // AI Yanıt Kapatma
+        function closeAIResponse() {
+            const responseDiv = document.getElementById('aiResponse');
+            if (responseDiv) {
+                responseDiv.classList.add('hidden');
+            }
+        }
+
+        // AI Loading Gösterme
+        function showAILoading() {
+            const responseDiv = document.getElementById('aiResponse');
+            const contentDiv = document.getElementById('aiContent');
+            const loadingDiv = document.getElementById('aiLoading');
+            
+            if (contentDiv) contentDiv.textContent = '';
+            if (loadingDiv) loadingDiv.classList.remove('hidden');
+            if (responseDiv) {
+                responseDiv.classList.remove('hidden');
+                responseDiv.scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+
+        // AI Önerileri - AI Assistant sayfasına yönlendir
+        function getAISuggestions() {
+            console.log('AI Asistan sayfasına yönlendiriliyor...');
+            window.location.href = '/ai-assistant/';
+        }
+
+        // AI Performans Analizi - Placeholder response
+        function getAIAnalysis() {
+            console.log('AI Analizi çağrılıyor...');
+            showAILoading();
+            
+            // Simulated AI response after a short delay
+            setTimeout(() => {
+                const analysisText = `📊 Performans Analizi Sonuçları:
+
+• Bu hafta toplam ${Math.floor(Math.random() * 10) + 5} görev tamamladınız
+• Ortalama tamamlama süresi: ${Math.floor(Math.random() * 3) + 1} gün
+• En verimli olduğunuz saat dilimi: ${Math.floor(Math.random() * 12) + 9}:00 - ${Math.floor(Math.random() * 12) + 12}:00
+• Öncelikli görevlerde başarı oranı: %${Math.floor(Math.random() * 30) + 70}
+
+💡 Öneriler:
+- Yüksek öncelikli görevleri sabah saatlerinde planlayın
+- Günlük hedeflerinizi küçük parçalara bölün
+- Pomodoro tekniğini kullanarak odaklanmanızı artırın
+
+⭐ Genel değerlendirme: İyi performans gösteriyorsunuz!`;
+                
+                showAIResponse(analysisText);
+            }, 2000);
+        }
+
+        // AI Öncelik Belirleme - Placeholder response
+        function getAIPriority() {
+            console.log('AI Öncelik çağrılıyor...');
+            showAILoading();
+            
+            // Simulated AI response after a short delay
+            setTimeout(() => {
+                const priorityText = `🎯 Akıllı Önceliklendirme Önerileri:
+
+Bugün öncelik vermeniz gereken görevler:
+
+1. 🔥 Yüksek Öncelik
+   - Bitiş tarihi yaklaşan görevler
+   - İş ile ilgili kritik görevler
+   - Diğer görevleri etkileyen bağımlılıklar
+
+2. ⚡ Orta Öncelik  
+   - Bu hafta tamamlanması gereken görevler
+   - Kişisel gelişim ile ilgili görevler
+   - Planlama gerektiren uzun vadeli projeler
+
+3. 💡 Düşük Öncelik
+   - Esnek tarihe sahip görevler
+   - Boş zamanında yapılabilecek aktiviteler
+   - Gelecek hafta planlanabilecek görevler
+
+⏰ Önerilen çalışma düzeni:
+Sabah: Yüksek öncelikli görevler
+Öğleden sonra: Orta öncelikli görevler  
+Akşam: Düşük öncelikli görevler`;
+                
+                showAIResponse(priorityText);
+            }, 2000);
+        }
+
+        // AI Zaman Tahmini
+        function estimateTime() {
+            const title = document.getElementById('title').value;
+            const description = document.getElementById('description').value;
+            
+            if (!title) {
+                alert('⚠️ Lütfen önce görev başlığını girin');
+                return;
+            }
+
+            const estimateDiv = document.getElementById('timeEstimate');
+            if (estimateDiv) {
+                estimateDiv.innerHTML = '⏳ Zaman tahmini yapılıyor...';
+                estimateDiv.classList.remove('hidden');
+            }
+
+            // Simulated AI time estimation
+            setTimeout(() => {
+                const estimates = ['30 dakika', '1 saat', '2 saat', '3 saat', '1 gün', '2 gün'];
+                const randomEstimate = estimates[Math.floor(Math.random() * estimates.length)];
+                
+                if (estimateDiv) {
+                    estimateDiv.innerHTML = `⏱️ Tahmini süre: ${randomEstimate}`;
+                    estimateDiv.className = 'mt-2 text-sm text-green-600 bg-green-50 p-2 rounded';
+                }
+            }, 1500);
+        }
+
+        // Analiz modalını göster
+        function showAnalysis(taskId) {
+            // Simulated task analysis
+            const analyses = [
+                'Bu görev orta düzeyde karmaşıklık içeriyor. Tahmini tamamlama süresi 2-3 saattir.',
+                'Yüksek öncelikli bir görev. Diğer görevlerden önce tamamlanması öneriliyor.',
+                'Bu görev için ek araştırma gerekebilir. Planlanan süreden %20 daha fazla zaman ayırın.',
+                'Rutin bir görev. Hızlı bir şekilde tamamlanabilir.',
+                'Bu görev yaratıcılık gerektiriyor. Sakin bir ortamda çalışmanız önerilir.'
+            ];
+            
+            const randomAnalysis = analyses[Math.floor(Math.random() * analyses.length)];
+            document.getElementById('analysisContent').innerHTML = randomAnalysis;
+            document.getElementById('analysisModal').classList.remove('hidden');
+        }
+
+        // Analiz modalını kapat
+        function closeAnalysis() {
+            document.getElementById('analysisModal').classList.add('hidden');
+        }
+
+        // Geriye uyumluluk için
+        function fetchSuggestions() {
+            getAISuggestions();
+        }
+
+        // Sayfa yüklendiğinde
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Sayfa yüklendi, AI özellikleri hazır.');
+            
+            // Zaman tahmini butonu
+            const estimateBtn = document.getElementById('estimateTimeBtn');
+            if (estimateBtn) {
+                estimateBtn.addEventListener('click', estimateTime);
+            }
+            
+            // Mobile menu toggle
+            const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+            const mobileMenu = document.getElementById('mobile-menu');
+            
+            if (mobileMenuBtn && mobileMenu) {
+                mobileMenuBtn.addEventListener('click', function() {
+                    mobileMenu.classList.toggle('hidden');
+                });
+            }
+
+            // AI butonlarını test et
+            console.log('AI Response div:', document.getElementById('aiResponse'));
+            console.log('AI Content div:', document.getElementById('aiContent'));
+            console.log('AI Loading div:', document.getElementById('aiLoading'));
+        });
+    </script>
+
+</body>
+</html>
